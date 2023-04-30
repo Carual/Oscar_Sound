@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #imagen{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  height: 90vh;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <img src="1.tif" id="imagen">
+    <script type="module">
+        const socket = new WebSocket('ws://localhost:8080');
+
+    var audio = document.getElementsByTagName('audio')[0]
+        socket.onmessage = ({data})=>{
+            console.log('have:', data);
+            var h = document.getElementById("imagen")
+            h.src=data
+            random_bg_color();
+        }
+    //        document.querySelector('button').addEventListener('click', ()=>{
+    //            audio.pause() // important!!!
+    //        audio.currentTime = 0
+   //         audio.play()
+    //        socket.send('test');
+           // var video=document.getElementsByTagName('video')[0];
+           // var sources = video.getElementsByTagName('source');
+           // sources[0].src = 'video_1/tree_2.mp4';
+           // video.load();
+    //    });
+
+        function random_bg_color() {
+                var x = Math.floor(Math.random() * 256);
+                var y = Math.floor(Math.random() * 256);
+                var z = Math.floor(Math.random() * 256);
+                var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+                console.log(bgColor);
+
+                document.body.style.background = bgColor;
+            }
+</script>
+</body>
+</html>

@@ -1,23 +1,37 @@
-const WebSocket = require('ws');
-const { SerialPort } = require('serialport');
-const { ReadlineParser } = require('@serialport/parser-readline');
-
-const server = new WebSocket.Server({ port: 8080 });
+const WebSocket = require('ws')
+const { SerialPort } = require('serialport')
+const { ReadlineParser } = require('@serialport/parser-readline')
 // Create a port
+
+//OSCAR SOLO CAMBIE ESTO:
+const ENTRADA = 'COM3'
+const PUERTO = 3000
+//NADA MAS
+
+const server = new WebSocket.Server({ port: PUERTO })
 const port = new SerialPort({
-	path: 'COM3',
+	path: ENTRADA,
 	baudRate: 9600,
-});
+})
 
-server.on('connection', (ws) => {
-	port.pipe(new ReadlineParser({ delimiter: '\r\n' })).on('data', (data) => {
-		data = parseInt(data);
-		if (data > 1000) {
-			ws.send(data);
-		}
-	});
+clients = []
+var data_old = [100, 100, 100, 100, 100]
+server.on('connection', ws => {
+	console.log('Nueva conexion')
+	clients.push(ws)
 
-	ws.on('message', (message) => {
-		console.log(message);
-	});
-});
+	ws.on('close', () => {
+		console.log('Conexion cerrada')
+		clients = clients.filter(client => client !== ws)
+	})
+})
+
+port.pipe(new ReadlineParser({ delimiter: '\r\n' })).on('data', data => {
+	data = data.split(',').map(element => {
+		return parseInt(element)
+	})
+	console.log('Datos:', data, 'Clientes:', clients.length)
+	clients.forEach(client => {
+		client.send(JSON.stringify(data))
+	})
+})
