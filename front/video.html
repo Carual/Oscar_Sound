@@ -1,70 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        #imagen{
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  height: 90vh;
+        #imagen {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            height: 90vh;
+        }
+
+        @keyframes fadeBlack {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
+
 <body>
     <h1></h1>
-    <video id="main_video" controls>
-        <source src="main_video.mp4" type="video/mp4" >
+    <video id="main_video" style="position: absolute; left: 0px; top: 0px; height: 100%; width: 100%;">
+        <source src="main_video.mp4" type="video/mp4"
+            style="position: absolute; left: 0px; top: 0px; height: 100%; width: 100%;">
     </video>
+    <div id="overlay"
+        style="position: absolute; left: 0px; top: 0px; height: 100%; width: 100%; z-index: 9998;background-color: black;opacity: 0;" onclick="document.getElementById('main_video').play()">
+    </div>
     <script type="module">
+        const overlay = document.getElementById('overlay')
         const socket = new WebSocket('ws://localhost:3000')
-        socket.onopen = ()=>{
+        socket.onopen = () => {
             console.log("conectado!")
         }
-        socket.onerror = (error)=>{
+        socket.onerror = (error) => {
             console.log(error)
         }
 
-    var video = document.getElementById("main_video")
-    video.loop=true;
-let data_old;
-let states_old=[]
-        socket.onmessage = ({data})=>{
-            data=JSON.parse(data)
-            if(!data_old){
+        var video = document.getElementById("main_video")
+        //video.play()
+        video.loop = true;
+        let data_old;
+        let states_old = []
+        socket.onmessage = ({ data }) => {
+            data = JSON.parse(data)
+            if (!data_old) {
                 data_old = data
             }
-            let newStates=[]
+            let newStates = []
             data.forEach(element => {
-                if(element>50){
+                if (element > 50) {
                     newStates.push(1)
-                }else{
+                } else {
                     newStates.push(0)
                 }
             });
+            if (newStates.find(element => element)) {
+                overlay.style.opacity = 0
+                overlay.style.animation=''
+            } else {
+                overlay.style.animation = 'fadeBlack 2s forwards'
+                /*fade = setInterval(() => {
+                    console.log('opacidad= ', overlay.style.opacity);
+                    overlay.style.opacity = parseFloat(overlay.style.opacity) + 0.01
+                }, 10)
+                */
+            }
             console.log(newStates);
             //random_bg_color()
-            if(JSON.stringify(states_old)!=JSON.stringify(newStates)){
+            if (JSON.stringify(states_old) != JSON.stringify(newStates)) {
                 random_bg_color()
                 console.log("cambio")
-                video.currentTime=Math.random()*(video.duration)*0.9
+                video.currentTime = Math.random() * (video.duration) * 0.9
             }
             states_old = newStates
 
 
         }
         function random_bg_color() {
-                var x = Math.floor(Math.random() * 256);
-                var y = Math.floor(Math.random() * 256);
-                var z = Math.floor(Math.random() * 256);
-                var bgColor = "rgb(" + x + "," + y + "," + z + ")";
-                console.log(bgColor);
+            var x = Math.floor(Math.random() * 256);
+            var y = Math.floor(Math.random() * 256);
+            var z = Math.floor(Math.random() * 256);
+            var bgColor = "rgb(" + x + "," + y + "," + z + ")";
+            console.log(bgColor);
 
-                document.body.style.background = bgColor;
-            }
-</script>
+            document.body.style.background = bgColor;
+        }
+    </script>
 </body>
+
 </html>
